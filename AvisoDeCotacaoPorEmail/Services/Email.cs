@@ -18,16 +18,10 @@ namespace AvisoDeCotacaoPorEmail
             } 
         }
 
-        private static IConfigurationRoot GetConfig()
-        {
-            var builder = new ConfigurationBuilder()
-                .AddJsonFile("smtpSettings.json");
-            var config = builder.Build();
-            return config;
-        }
+     
         private static SmtpClient GetClient()
         {
-            var config = GetConfig();
+            var config = new Configs().GetSmtpSettings();
 
             return new SmtpClient(config["Smtp:Host"])
             {
@@ -39,11 +33,12 @@ namespace AvisoDeCotacaoPorEmail
 
         public async Task SendEmail(String toStr, String messageStr, String subjectStr)
         {
+            var config = new Configs().GetSmtpSettings();
             var client = GetClient();
             client.SendCompleted += new
                 SendCompletedEventHandler(SendCompletedCallback);
-            MailAddress from = new MailAddress(GetConfig()["Smtp:Email"],
-                GetConfig()["Smtp:DisplayName"],
+            MailAddress from = new MailAddress(config["Smtp:Email"],
+                config["Smtp:DisplayName"],
                 System.Text.Encoding.UTF8);
             MailAddress to = new MailAddress(toStr);
             MailMessage message = new MailMessage(from, to);

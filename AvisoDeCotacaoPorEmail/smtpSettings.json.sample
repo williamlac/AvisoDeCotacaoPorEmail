@@ -3,6 +3,7 @@
         "Host": "smtp.gmail.com",
         "Port": 587,
         "Email": "xxxxgmail.com",
-        "Password": "password"
+        "Password": "password",
+        "DisplayName": "Aviso de Cotação"
     }
 }
