@@ -4,3 +4,11 @@ obj/
 riderModule.iml
 /_ReSharper.Caches/
 AvisoDeCotacaoPorEmail/smtpSettings.json
+
+list.csv
+
+AvisoDeCotacaoPorEmail/appSettings.json
+
+Publish/
+
+.vs/

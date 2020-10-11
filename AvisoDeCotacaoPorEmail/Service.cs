@@ -10,103 +10,165 @@ using System.Reflection;
 using System.ServiceProcess;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using NLog;
+using NLog.Extensions.Logging;
 
 namespace AvisoDeCotacaoPorEmail
 {
     public class Service : ServiceBase
     {
         // Fields
-        private const string _logFileLocation = @"C:\temp\servicelog.txt";
+        
         private Email emailSender = new Email();
         private bool cancellationToken = false;
         private List<Thread> threadsToWait = new List<Thread>();
+        static Csv csv = new Csv();
+        private static string csvPath = csv.CsvPath;
+        private FileSystemWatcher _fileWatcher = new FileSystemWatcher();
+        IConfigurationRoot config = new Configs().GetAppSettings();
+        Logger log = LogManager.GetCurrentClassLogger();
 
-        // Methods
-        private List<Stock> GetStocks() => 
-            new List<Stock> { new Stock("PETR4", 20.0, 22.0) };
-
-        private void Log(string logMessage)
+        enum CHECK_CODES
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(_logFileLocation));
-            File.AppendAllText(_logFileLocation, DateTime.UtcNow.ToString() + " : " + logMessage + Environment.NewLine);
+            ERROR,
+            SUCCESS,
+            NEUTRAL
         }
-
+        
         protected override void OnPause()
         {
-            Log("Pausing");
+            log.Debug("Pausing");
             base.OnPause();
         }
 
         public void OnRun()
         {
-            foreach (Stock stock in GetStocks())
+            foreach (Stock stock in csv.GetStocks())
             {
+                Thread.Sleep(1000);
                 StartStockThread(stock);
             }
         }
 
         protected override void OnStart(string[] args)
         {
-            Log("Starting");
-            emailSender.SendEmail("williamslacerda@gmail.com", "Teste", "Aviso").Wait();
-            Log("First Email Sent");
-            emailSender.SendEmail("williamslacerda@gmail.com", "Teste", "Aviso 2").Wait();
-            Log("Second Email Sent");
+            LogManager.Configuration = new NLogLoggingConfiguration(config.GetSection("NLog"));
+            log.Debug("Starting");
+            _fileWatcher = new FileSystemWatcher( Path.GetDirectoryName(csvPath) );
+            _fileWatcher.Created += new FileSystemEventHandler(FileChanged);
+            _fileWatcher.Deleted += new FileSystemEventHandler(FileChanged);
+            _fileWatcher.Changed += new FileSystemEventHandler(FileChanged);
+            _fileWatcher.EnableRaisingEvents = true;
             base.OnStart(args);
+            OnRun();
         }
 
         protected override void OnStop()
         {
-            Log("Stopping");
+            log.Debug("Stopping");
             this.cancellationToken = true;
             this.threadsToWait.ForEach(t => t.Join());
+            _fileWatcher.Created -= FileChanged;
+            _fileWatcher.Deleted -= FileChanged;
+            _fileWatcher.Changed -= FileChanged;
+            _fileWatcher.EnableRaisingEvents = false;
+            _fileWatcher.Dispose();
 
-            Log("Serviço encerrado");
+            log.Debug("Serviço encerrado");
             base.OnStop();
+        }
+        
+        private void FileChanged( object sender, FileSystemEventArgs e )
+        {
+            if (e.FullPath == csvPath)
+            {
+                log.Debug("List changed, restarting threads");
+                this.cancellationToken = true;
+                this.threadsToWait.ForEach(t =>
+                {
+                    t.Join();
+                    log.Info($"Thread {t.Name} stopped");
+                });
+                this.threadsToWait = new List<Thread>();
+                this.cancellationToken = false;
+                OnRun();
+                log.Debug(
+                    $"{e.Name} with path {e.FullPath} has been {e.ChangeType} at {DateTime.Now:MM/dd/yy H:mm:ss}");
+            }
         }
         
         private void StartStockThread(Stock stock)
         {
             ThreadStart starter = delegate { this.RunJobThread(stock); };
             Thread t = new Thread(starter);
+            t.Name = stock.Symbol;
             t.Start();
             this.threadsToWait.Add(t);
+            log.Debug($"Thread for {stock.Symbol} started with Min = {stock.MinValue} and Max = {stock.MaxValue}");
         }
         
         private void RunJobThread(Stock stock)
         {
-            bool sendSuccess = false;
+            CHECK_CODES sendSuccess = CHECK_CODES.NEUTRAL;
             do
             {
-                int sleep = 1000;
+                int sleep = Int32.Parse(config["TimeBetweenChecks"]);
                 try
                 {
                     sendSuccess = CheckValueAndSendMail(stock);
+                    if (sendSuccess == CHECK_CODES.SUCCESS)
+                    {
+                        log.Debug($"Success {stock.Symbol}");
+                        // Caso sucesso, esperar 1h antes de verificar novamente
+                        sleep = Int32.Parse(config["TimeBetweenChecksIfSuccess"]);
+                    } else if (sendSuccess == CHECK_CODES.ERROR)
+                    {
+                        log.Error($"Error detected, sleeping for {config["TimeBetweenChecksIfError"]}ms");
+                        sleep = Int32.Parse(config["TimeBetweenChecksIfError"]);
+
+                    }
                 }
                 catch (Exception e)
                 {
-                    // _logger.Error(e, "Thread {0}@{1} :: Erro ao chamar Motor: {2}", job.nome, threadIndex);
+                    log.Debug("Erro ao inicializar Thread "+e);
                 }
-                
+                log.Debug($"Sleeping for {sleep / 1000} seconds");
                 Thread.Sleep(sleep);
-            } while (this.cancellationToken != true && !sendSuccess);
+            } while (this.cancellationToken != true);
             
         }
-        private bool CheckValueAndSendMail(Stock s)
+        private CHECK_CODES CheckValueAndSendMail(Stock s)
         {
-            s.UpdateCurValue();
+            // TODO tratar melhor os retornos com uma estrutura para os tipos de retorno (ERRO, SUCESSO, NEUTRO)
+            try
+            {
+                s.UpdateCurValue();
+            }
+            catch (Exception e)
+            {
+                return CHECK_CODES.ERROR;
+            }
+
+            log.Debug($"Stock {s.Symbol} value updated to ${s.CurValue}");
             if (s.CurValue >= s.MaxValue)
             {
-                emailSender.SendEmail("williamslacerda@gmail.com", "Acima", "Aviso Max").Wait();
-                return true;
+                var message =
+                    $"A ação {s.Symbol} atingiu o valor de ${s.CurValue:N2}%! E o valor máximo configurado era ${s.MaxValue:N2}%";
+                log.Debug(message);
+                emailSender.SendEmail(config["DestinationEmail"], message, "Aviso De Cotação!").Wait();
+                return CHECK_CODES.SUCCESS;
             }
             if (s.CurValue <= s.MinValue)
             {
-                emailSender.SendEmail("williamslacerda@gmail.com", "Abaixo", "Aviso Min").Wait();
-                return true;
+                var message =
+                    $"A ação {s.Symbol} atingiu o valor de ${s.CurValue:N2}%! E o valor mínimo configurado era ${s.MaxValue:N2}%";
+                log.Debug(message);
+                emailSender.SendEmail(config["DestinationEmail"], message, "Aviso De Cotação!").Wait();
+                return  CHECK_CODES.SUCCESS;
             }
 
-            return false;
+            return  CHECK_CODES.NEUTRAL;
         }
     }
 }
