@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp2.1</TargetFramework>
+        <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="CsvHelper" Version="15.0.6" />
+      <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.8" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.8" />
+      <PackageReference Include="Microsoft.Windows.Compatibility" Version="3.1.1" />
+      <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <None Include="smtpSettings.json" CopyToPublishDirectory="Always" CopyToOutputDirectory="Always" />
+    <None Update="appSettings.json.sample">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </None>
+    <None Update="appSettings.json">
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <PackageReference Include="NLog" Version="4.7.5" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="1.6.5" />
+
+    </ItemGroup>
+
+</Project>

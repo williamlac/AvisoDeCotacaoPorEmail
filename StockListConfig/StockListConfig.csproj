@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp2.1</TargetFramework>
+        <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
+
+    </PropertyGroup>
+    
+    <ItemGroup>
+      <ProjectReference Include="..\AvisoDeCotacaoPorEmail\AvisoDeCotacaoPorEmail.csproj" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <PackageReference Include="NLog" Version="4.7.5" />
+      <PackageReference Include="NLog.Extensions.Logging" Version="1.6.5" />
+    </ItemGroup>
+
+</Project>
