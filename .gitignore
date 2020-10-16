@@ -3,12 +3,12 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
-AvisoDeCotacaoPorEmail/smtpSettings.json
+smtpSettings.json
 
 list.csv
 
-AvisoDeCotacaoPorEmail/appSettings.json
+appSettings.json
 
-Publish/
+Publish/logs
 
 .vs/

@@ -25,17 +25,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7e7361ac-280d-446f-aa02-b7ea0f447c15" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/AvisoDeCotacaoPorEmail/Services/Csv.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.AvisoDeCotacaoPorEmail/.idea/contentModel.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.AvisoDeCotacaoPorEmail/.idea/contentModel.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.AvisoDeCotacaoPorEmail/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.AvisoDeCotacaoPorEmail/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AvisoDeCotacaoPorEmail.sln" beforeDir="false" afterPath="$PROJECT_DIR$/AvisoDeCotacaoPorEmail.sln" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AvisoDeCotacaoPorEmail/ApiClasses/AlphaVantage.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AvisoDeCotacaoPorEmail/ApiClasses/AlphaVantage.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/AvisoDeCotacaoPorEmail/AvisoDeCotacaoPorEmail.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/AvisoDeCotacaoPorEmail/AvisoDeCotacaoPorEmail.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AvisoDeCotacaoPorEmail/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AvisoDeCotacaoPorEmail/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AvisoDeCotacaoPorEmail/Service.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AvisoDeCotacaoPorEmail/Service.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AvisoDeCotacaoPorEmail/Services/Api.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AvisoDeCotacaoPorEmail/Services/Api.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AvisoDeCotacaoPorEmail/Stock.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AvisoDeCotacaoPorEmail/Stock.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AvisoDeCotacaoPorEmail/appSettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/AvisoDeCotacaoPorEmail/appSettings.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -161,6 +152,7 @@
       <updated>1602342697940</updated>
       <workItem from="1602342705584" duration="7405000" />
       <workItem from="1602350384049" duration="16097000" />
+      <workItem from="1602864426348" duration="597000" />
     </task>
     <servers />
   </component>
